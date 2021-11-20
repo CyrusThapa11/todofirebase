@@ -7,23 +7,26 @@ import Todo from './Todo';
 import db from './firebasee';
 import firebase from 'firebase/compat/app';
 import {
-  getFirestore,
   addDoc,
   collection,
   getDocs,
   query,
-  where,
   orderBy,
 } from 'firebase/firestore/lite';
-import { getDatabase, ref, set } from 'firebase/database';
+// import { getDatabase, ref, set } from 'firebase/database';
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState('');
 
+  console.log('rendering app');
+  console.log('todos', todos);
+
   // when the app loads , we need to listen to the db and fetch new todos as they get added/removed
   const getData = async (db) => {
     const todoss = collection(db, 'todos');
+    console.log('todoss is ', todoss);
+
     // const snapshot = await getDocs(todoss);
     // const todoList = snapshot.docs.map((doc) => doc.data().task);
     // console.log('todoList -> ', todoList);
@@ -34,7 +37,9 @@ function App() {
     // qsnap.forEach(function (doc) {
     //   console.log('doc -> ', doc.data());
     // });
-    const todoList = qsnap.docs.map((doc) => doc.data().task);
+    const todoList = qsnap.docs.map((doc) => {
+      return { taskk: doc.data().task, id: doc.id };
+    });
     setTodos(todoList);
     console.log('after ordering -> ', todoList);
   };
@@ -108,10 +113,11 @@ function App() {
       </form>
 
       <ul>
-        {todos.map((todo, idx) => {
-          // return <li key={idx}> {todo} </li>;
-          return <Todo todo={todo} key={idx} />;
-        })}
+        {todos !== undefined &&
+          todos.map((todo, idx) => {
+            // return <li key={idx}> {todo} </li>;
+            return <Todo todo={todo} key={todo.id} refetch={getData} />;
+          })}
       </ul>
     </div>
   );
